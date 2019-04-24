@@ -422,7 +422,7 @@ func (db *Database) GetDelta(docID, fromRevID, toRevID string) (delta *RevisionD
 		if err != nil {
 			return nil, err
 		}
-		revCacheDelta := NewRevCacheDelta(deltaBytes, fromRevID, toBody)
+		revCacheDelta := newRevCacheDelta(deltaBytes, fromRevID, toBody)
 
 		// Write the newly calculated delta back into the cache before returning
 		db.revisionCache.UpdateDelta(docID, fromRevID, revCacheDelta)

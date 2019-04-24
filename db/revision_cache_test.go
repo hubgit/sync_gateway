@@ -91,7 +91,7 @@ func TestLoaderFunction(t *testing.T) {
 		}
 		return
 	}
-	cache := NewRevisionCache(10, loader, initEmptyStatsMap(base.StatsGroupKeyCache))
+	cache := NewShardedLRURevisionCache(10, loader, initEmptyStatsMap(base.StatsGroupKeyCache))
 
 	docRev, err := cache.Get("Jens", "1")
 	goassert.Equals(t, docRev.Body[BodyId], "Jens")
@@ -269,7 +269,7 @@ func TestRevisionImmutableDelta(t *testing.T) {
 		channels = base.SetOf("*")
 		return
 	}
-	cache := NewRevisionCache(10, loader, initEmptyStatsMap(base.StatsGroupKeyCache))
+	cache := NewShardedLRURevisionCache(10, loader, initEmptyStatsMap(base.StatsGroupKeyCache))
 
 	firstDelta := []byte("delta")
 	secondDelta := []byte("modified delta")
@@ -313,7 +313,7 @@ func BenchmarkRevisionCacheRead(b *testing.B) {
 		channels = base.SetOf("*")
 		return
 	}
-	cache := NewRevisionCache(5000, loader, initEmptyStatsMap(base.StatsGroupKeyCache))
+	cache := NewShardedLRURevisionCache(5000, loader, initEmptyStatsMap(base.StatsGroupKeyCache))
 
 	// trigger load into cache
 	for i := 0; i < 5000; i++ {
