@@ -70,7 +70,7 @@ pipeline {
                                     sh 'go get -v -u github.com/axw/gocov/...'
                                     sh 'go get -v -u github.com/AlekSi/gocov-xml'
                                     // Jenkins test reporting tools
-                                    // sh 'go get -v -u github.com/jstemmer/go-junit-report'
+                                    sh 'go get -v -u github.com/tebeka/go2xunit'
                                 }
                             }
                         }
@@ -125,7 +125,7 @@ pipeline {
                                 // Travis-related variables are required as coveralls.io only officially supports a certain set of CI tools.
                                 withEnv(["PATH+=${GO}:${GOPATH}/bin", "TRAVIS_BRANCH=${env.BRANCH}", "TRAVIS_PULL_REQUEST=${env.CHANGE_ID}", "TRAVIS_JOB_ID=${env.BUILD_NUMBER}"]) {
                                     // Build CE coverprofiles
-                                    sh 'go test -timeout=20m -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ce.out github.com/couchbase/sync_gateway/...'
+                                    sh '2>&1 go test -timeout=20m -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ce.out -v github.com/couchbase/sync_gateway/... | tee verbose_ce.out'
 
                                     // Print total coverage stats
                                     sh 'go tool cover -func=cover_ce.out | awk \'END{print "Total SG CE Coverage: " $3}\''
@@ -133,7 +133,7 @@ pipeline {
                                     sh 'mkdir -p reports'
 
                                     // Generate junit-formatted test report
-                                    // sh 'cat test_ce.out | go-junit-report > reports/test-ce.xml'
+                                    sh 'go2xunit -fail -input verbose_ce.out -output reports/test-ce.xml'
 
                                     // Generate HTML coverage report
                                     sh 'go tool cover -html=cover_ce.out -o reports/coverage-ce.html'
@@ -153,13 +153,13 @@ pipeline {
                             steps {
                                 withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
                                     // Build EE coverprofiles
-                                    sh "go test -timeout=20m -tags ${EE_BUILD_TAG} -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ee.out github.com/couchbase/sync_gateway/..."
+                                    sh "2>&1 go test -timeout=20m -tags ${EE_BUILD_TAG} -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ee.out -v github.com/couchbase/sync_gateway/... | tee verbose_ee.out"
                                     sh 'go tool cover -func=cover_ee.out | awk \'END{print "Total SG EE Coverage: " $3}\''
 
                                     sh 'mkdir -p reports'
 
                                     // Generate junit-formatted test report
-                                    // sh 'cat test_ee.out | go-junit-report > reports/test-ee.xml'
+                                    sh 'go2xunit -fail -input verbose_ee.out -output reports/test-ee.xml'
 
                                     sh 'go tool cover -html=cover_ee.out -o reports/coverage-ee.html'
 
@@ -210,7 +210,7 @@ pipeline {
             cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'reports/coverage-*.xml', conditionalCoverageTargets: '70, 0, 0', failNoReports: false, failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', sourceEncoding: 'ASCII', zoomCoverageChart: false
 
             // Publish the junit test reports
-            // junit allowEmptyResults: true, testResults: 'reports/test-*.xml'
+            junit allowEmptyResults: false, testResults: 'reports/test-*.xml'
 
             // TODO: Might be better to clean the workspace to before a job runs instead
             step([$class: 'WsCleanup'])
