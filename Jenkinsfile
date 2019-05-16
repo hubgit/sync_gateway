@@ -164,7 +164,15 @@ pipeline {
                                     sh 'gocov convert cover_ce.out | gocov-xml > reports/coverage-ce.xml'
 
                                     // Generate junit-formatted test report
-                                    sh 'go2xunit -fail -suite-name-prefix="CE-" -input verbose_ce.out -output reports/test-ce.xml'
+                                    script {
+                                        try {
+                                            sh 'go2xunit -fail -suite-name-prefix="CE-" -input verbose_ce.out -output reports/test-ce.xml'
+                                        } catch (Exception e) {
+                                            // Caught a non-zero exit code
+                                            // Mark build as unstable instead of failing
+                                            currentBuild.result='UNSTABLE'
+                                        }
+                                    }
 
                                     // Publish CE coverage to coveralls.io
                                     // Replace covermode values with set just for coveralls to reduce the variability in reports.
@@ -191,7 +199,15 @@ pipeline {
                                     sh 'gocov convert cover_ee.out | gocov-xml > reports/coverage-ee.xml'
 
                                     // Generate junit-formatted test report
-                                    sh 'go2xunit -fail -suite-name-prefix="EE-" -input verbose_ee.out -output reports/test-ee.xml'
+                                    script {
+                                        try {
+                                            sh 'go2xunit -fail -suite-name-prefix="EE-" -input verbose_ee.out -output reports/test-ee.xml'
+                                        } catch (Exception e) {
+                                            // Caught a non-zero exit code
+                                            // Mark build as unstable instead of failing
+                                            currentBuild.result='UNSTABLE'
+                                        }
+                                    }
                                 }
                             }
                         }
