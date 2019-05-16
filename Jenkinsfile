@@ -95,13 +95,13 @@ pipeline {
                         }
                     }
                 }
-                stage('CE macOS') {
-                    steps {
-                        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "GOOS=darwin go build -o sync_gateway_ce-darwin -v github.com/couchbase/sync_gateway"
-                        }
-                    }
-                }
+                //stage('CE macOS') {
+                //    steps {
+                //        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                //            sh "GOOS=darwin go build -o sync_gateway_ce-darwin -v github.com/couchbase/sync_gateway"
+                //        }
+                //    }
+                //}
                 stage('EE Linux') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
@@ -116,13 +116,13 @@ pipeline {
                         }
                     }
                 }
-                stage('EE macOS') {
-                    steps {
-                        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "GOOS=darwin go build -o sync_gateway_ee-darwin -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
-                        }
-                    }
-                }
+                //stage('EE macOS') {
+                //    steps {
+                //        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                //            sh "GOOS=darwin go build -o sync_gateway_ee-darwin -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
+                //        }
+                //    }
+                //}
                 stage('Windows Service') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
