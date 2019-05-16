@@ -150,7 +150,7 @@ pipeline {
                                 withEnv(["PATH+=${GO}:${GOPATH}/bin", "TRAVIS_BRANCH=${env.BRANCH}", "TRAVIS_PULL_REQUEST=${env.CHANGE_ID}", "TRAVIS_JOB_ID=${env.BUILD_NUMBER}"]) {
                                     // Build CE coverprofiles
                                     sh '2>&1 go test -timeout=20m -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ce.out -race -count=1 -v github.com/couchbase/sync_gateway/... > verbose_ce.out || true'
-                                    sh 'cat verbose_ce.out'
+                                    //sh 'cat verbose_ce.out'
 
                                     // Print total coverage stats
                                     sh 'go tool cover -func=cover_ce.out | awk \'END{print "Total SG CE Coverage: " $3}\''
@@ -187,7 +187,7 @@ pipeline {
                                 withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
                                     // Build EE coverprofiles
                                     sh "2>&1 go test -timeout=20m -tags ${EE_BUILD_TAG} -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ee.out -race -count=1 -v github.com/couchbase/sync_gateway/... > verbose_ee.out || true"
-                                    sh 'cat verbose_ce.out'
+                                    //sh 'cat verbose_ce.out'
 
                                     sh 'go tool cover -func=cover_ee.out | awk \'END{print "Total SG EE Coverage: " $3}\''
 
