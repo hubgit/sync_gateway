@@ -170,7 +170,7 @@ pipeline {
                                     sh 'mkdir -p reports'
 
                                     // Generate junit-formatted test report
-                                    sh 'go2xunit -fail -input verbose_ce.out -output reports/test-ce.xml'
+                                    sh 'go2xunit -suite-name-prefix='CE-'  -input verbose_ce.out -output reports/test-ce.xml'
 
                                     // Generate HTML coverage report
                                     sh 'go tool cover -html=cover_ce.out -o reports/coverage-ce.html'
@@ -198,7 +198,7 @@ pipeline {
                                     sh 'mkdir -p reports'
 
                                     // Generate junit-formatted test report
-                                    sh 'go2xunit -fail -input verbose_ee.out -output reports/test-ee.xml'
+                                    sh 'go2xunit -suite-name-prefix='EE-' -input verbose_ee.out -output reports/test-ee.xml'
 
                                     sh 'go tool cover -html=cover_ee.out -o reports/coverage-ee.html'
 
