@@ -34,7 +34,9 @@ func canSeeAllChannels(princ Principal, channels base.Set) bool {
 }
 
 func TestIntentionalFail(t *testing.T) {
-	t.Fatalf("Oops!")
+	if !base.IsEnterpriseEdition() {
+		t.Fatalf("Oops!")
+	}
 }
 
 func TestValidateGuestUser(t *testing.T) {
