@@ -95,19 +95,55 @@ pipeline {
                         }
                     }
                 }
-                stage(' ') {
+                stage('CE') {
                     stages {
-                        stage('CE') {
-                            steps {
-                                withEnv(["SG_EDITION=CE", "PATH+=${GO}:${GOPATH}/bin"]) {
-                                    sh './build.sh -v'
+                        parallel {
+                            stage('Linux') {
+                                steps {
+                                    withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                                        sh "GOOS=linux go build -o sync_gateway_ce-linux -v github.com/couchbase/sync_gateway"
+                                    }
+                                }
+                            }
+                            stage('Windows') {
+                                steps {
+                                    withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                                        sh "GOOS=windows go build -o sync_gateway_ce-windows.exe -v github.com/couchbase/sync_gateway"
+                                    }
+                                }
+                            }
+                            stage('macOS') {
+                                steps {
+                                    withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                                        sh "GOOS=darwin go build -o sync_gateway_ce-macos -v github.com/couchbase/sync_gateway"
+                                    }
                                 }
                             }
                         }
-                        stage('EE') {
-                            steps {
-                                withEnv(["SG_EDITION=EE", "PATH+=${GO}:${GOPATH}/bin"]) {
-                                    sh './build.sh -v'
+                    }
+                }
+                stage('EE') {
+                    stages {
+                        parallel {
+                            stage('Linux') {
+                                steps {
+                                    withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                                        sh "GOOS=linux go build -o sync_gateway_ee-linux -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
+                                    }
+                                }
+                            }
+                            stage('Windows') {
+                                steps {
+                                    withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                                        sh "GOOS=windows go build -o sync_gateway_ee-windows.exe -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
+                                    }
+                                }
+                            }
+                            stage('macOS') {
+                                steps {
+                                    withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                                        sh "GOOS=darwin go build -o sync_gateway_ee-macos -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
+                                    }
                                 }
                             }
                         }
@@ -116,16 +152,17 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Tests') {
             parallel {
                 stage(' ') {
                     stages {
-                        stage('CE -cover') {
+                        stage('CE') {
                             steps{
                                 // Travis-related variables are required as coveralls.io only officially supports a certain set of CI tools.
                                 withEnv(["PATH+=${GO}:${GOPATH}/bin", "TRAVIS_BRANCH=${env.BRANCH}", "TRAVIS_PULL_REQUEST=${env.CHANGE_ID}", "TRAVIS_JOB_ID=${env.BUILD_NUMBER}"]) {
                                     // Build CE coverprofiles
-                                    sh '2>&1 go test -timeout=20m -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ce.out -v github.com/couchbase/sync_gateway/... | tee verbose_ce.out'
+                                    sh '2>&1 go test -timeout=20m -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ce.out -race -count=1 -v github.com/couchbase/sync_gateway/... > verbose_ce.out'
+                                    // if failed - cat verbose_ce.out
 
                                     // Print total coverage stats
                                     sh 'go tool cover -func=cover_ce.out | awk \'END{print "Total SG CE Coverage: " $3}\''
@@ -149,11 +186,13 @@ pipeline {
                             }
                         }
 
-                        stage('EE -cover') {
+                        stage('EE') {
                             steps {
                                 withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
                                     // Build EE coverprofiles
-                                    sh "2>&1 go test -timeout=20m -tags ${EE_BUILD_TAG} -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ee.out -v github.com/couchbase/sync_gateway/... | tee verbose_ee.out"
+                                    sh "2>&1 go test -timeout=20m -tags ${EE_BUILD_TAG} -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ee.out -race -count=1 -v github.com/couchbase/sync_gateway/... > verbose_ee.out"
+                                    // if failed - cat verbose_ee.out
+
                                     sh 'go tool cover -func=cover_ee.out | awk \'END{print "Total SG EE Coverage: " $3}\''
 
                                     sh 'mkdir -p reports'
@@ -168,26 +207,9 @@ pipeline {
                                 }
                             }
                         }
-
-                        stage('CE -race') {
-                            steps {
-                                echo 'Testing with -race..'
-                                withEnv(["SG_EDITION=CE", "PATH+=${GO}:${GOPATH}/bin"]) {
-                                    sh './test.sh -race -count=1'
-                                }
-                            }
-                        }
-
-                        stage('EE -race') {
-                            steps {
-                                echo 'Testing with -race..'
-                                withEnv(["SG_EDITION=EE", "PATH+=${GO}:${GOPATH}/bin"]) {
-                                    sh './test.sh -race -count=1'
-                                }
-                            }
-                        }
                     }
                 }
+
                 stage('Integration') {
                     when { branch 'master' }
                     steps {
