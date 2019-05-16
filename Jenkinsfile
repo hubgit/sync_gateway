@@ -149,22 +149,22 @@ pipeline {
                                 // Travis-related variables are required as coveralls.io only officially supports a certain set of CI tools.
                                 withEnv(["PATH+=${GO}:${GOPATH}/bin", "TRAVIS_BRANCH=${env.BRANCH}", "TRAVIS_PULL_REQUEST=${env.CHANGE_ID}", "TRAVIS_JOB_ID=${env.BUILD_NUMBER}"]) {
                                     // Build CE coverprofiles
-                                    sh '2>&1 go test -timeout=20m -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ce.out -race -count=1 -v github.com/couchbase/sync_gateway/... > verbose_ce.out'
-                                    // if failed - cat verbose_ce.out
+                                    sh '2>&1 go test -timeout=20m -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ce.out -race -count=1 -v github.com/couchbase/sync_gateway/... > verbose_ce.out || true'
+                                    sh 'cat verbose_ce.out'
 
                                     // Print total coverage stats
                                     sh 'go tool cover -func=cover_ce.out | awk \'END{print "Total SG CE Coverage: " $3}\''
 
                                     sh 'mkdir -p reports'
 
-                                    // Generate junit-formatted test report
-                                    sh 'go2xunit -suite-name-prefix="CE-"  -input verbose_ce.out -output reports/test-ce.xml'
-
                                     // Generate HTML coverage report
                                     sh 'go tool cover -html=cover_ce.out -o reports/coverage-ce.html'
 
                                     // Generate Cobertura XML report that can be parsed by the Jenkins Cobertura Plugin
                                     sh 'gocov convert cover_ce.out | gocov-xml > reports/coverage-ce.xml'
+
+                                    // Generate junit-formatted test report
+                                    sh 'go2xunit -fail -suite-name-prefix="CE-" -input verbose_ce.out -output reports/test-ce.xml'
 
                                     // Publish CE coverage to coveralls.io
                                     // Replace covermode values with set just for coveralls to reduce the variability in reports.
@@ -178,20 +178,20 @@ pipeline {
                             steps {
                                 withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
                                     // Build EE coverprofiles
-                                    sh "2>&1 go test -timeout=20m -tags ${EE_BUILD_TAG} -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ee.out -race -count=1 -v github.com/couchbase/sync_gateway/... > verbose_ee.out"
-                                    // if failed - cat verbose_ee.out
+                                    sh "2>&1 go test -timeout=20m -tags ${EE_BUILD_TAG} -coverpkg=github.com/couchbase/sync_gateway/... -coverprofile=cover_ee.out -race -count=1 -v github.com/couchbase/sync_gateway/... > verbose_ee.out || true"
+                                    sh 'cat verbose_ce.out'
 
                                     sh 'go tool cover -func=cover_ee.out | awk \'END{print "Total SG EE Coverage: " $3}\''
 
                                     sh 'mkdir -p reports'
 
-                                    // Generate junit-formatted test report
-                                    sh 'go2xunit -suite-name-prefix="EE-" -input verbose_ee.out -output reports/test-ee.xml'
-
                                     sh 'go tool cover -html=cover_ee.out -o reports/coverage-ee.html'
 
                                     // Generate Cobertura XML report that can be parsed by the Jenkins Cobertura Plugin
                                     sh 'gocov convert cover_ee.out | gocov-xml > reports/coverage-ee.xml'
+
+                                    // Generate junit-formatted test report
+                                    sh 'go2xunit -fail -suite-name-prefix="EE-" -input verbose_ee.out -output reports/test-ee.xml'
                                 }
                             }
                         }
