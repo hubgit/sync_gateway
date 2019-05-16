@@ -39,6 +39,10 @@ func TestIntentionalFail(t *testing.T) {
 	}
 }
 
+func TestIntentionalFail2(t *testing.T) {
+	t.Fatal("Oopsy!")
+}
+
 func TestValidateGuestUser(t *testing.T) {
 
 	gTestBucket := base.GetTestBucketOrPanic()
