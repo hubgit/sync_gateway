@@ -79,19 +79,12 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Builds') {
             parallel {
-                stage('gofmt check') {
-                    steps {
-                        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "test -z \"\$(gofmt -d -e ${GOPATH}/src/github.com/couchbase/sync_gateway)\""
-                        }
-                    }
-                }
                 stage('Windows Service') {
                     steps {
-                        withEnv(["GOOS=windows", "PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh 'go build -v github.com/couchbase/sync_gateway/service/sg-windows/sg-service'
+                        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                            sh 'GOOS=windows go build -v github.com/couchbase/sync_gateway/service/sg-windows/sg-service'
                         }
                     }
                 }
@@ -136,6 +129,14 @@ pipeline {
                             sh "GOOS=darwin go build -o sync_gateway_ee-macos -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
                         }
                     }
+                }
+            }
+        }
+
+        stage('gofmt') {
+            steps {
+                withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                    sh "test -z \"\$(gofmt -d -e ${GOPATH}/src/github.com/couchbase/sync_gateway)\""
                 }
             }
         }
