@@ -91,14 +91,14 @@ pipeline {
                 stage('CE Windows') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "GOOS=windows go build -o sync_gateway_ce-windows.exe -v github.com/couchbase/sync_gateway"
+                            sh "GOOS=windows go build -o sync_gateway_ce-windows -v github.com/couchbase/sync_gateway"
                         }
                     }
                 }
                 stage('CE macOS') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "GOOS=darwin go build -o sync_gateway_ce-macos -v github.com/couchbase/sync_gateway"
+                            sh "GOOS=darwin go build -o sync_gateway_ce-darwin -v github.com/couchbase/sync_gateway"
                         }
                     }
                 }
@@ -112,14 +112,14 @@ pipeline {
                 stage('EE Windows') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "GOOS=windows go build -o sync_gateway_ee-windows.exe -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
+                            sh "GOOS=windows go build -o sync_gateway_ee-windows -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
                         }
                     }
                 }
                 stage('EE macOS') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "GOOS=darwin go build -o sync_gateway_ee-macos -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
+                            sh "GOOS=darwin go build -o sync_gateway_ee-darwin -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
                         }
                     }
                 }
