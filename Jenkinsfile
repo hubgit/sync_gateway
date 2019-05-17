@@ -98,14 +98,16 @@ pipeline {
                 stage('CE macOS') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "GOOS=darwin go build -o sync_gateway_ce-darwin -v github.com/couchbase/sync_gateway"
+                            echo 'TODO: Uncomment and figure out why build issues are caused by gosigar'
+                            //sh "GOOS=darwin go build -o sync_gateway_ce-darwin -v github.com/couchbase/sync_gateway"
                         }
                     }
                 }
                 stage('EE macOS') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "GOOS=darwin go build -o sync_gateway_ee-darwin -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
+                            echo 'TODO: Uncomment and figure out why build issues are caused by gosigar'
+                            //sh "GOOS=darwin go build -o sync_gateway_ee-darwin -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
                         }
                     }
                 }
