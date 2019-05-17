@@ -79,56 +79,44 @@ pipeline {
             }
         }
 
-        stage('CE Build') {
+        stage('Builds') {
             parallel {
-                stage('Linux') {
+                stage('CE Linux') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
                             sh "GOOS=linux go build -o sync_gateway_ce-linux -v github.com/couchbase/sync_gateway"
                         }
                     }
                 }
-                stage('macOS') {
-                    steps {
-                        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "GOOS=darwin go build -o sync_gateway_ce-darwin -v github.com/couchbase/sync_gateway"
-                        }
-                    }
-                }
-                stage('Windows') {
-                    steps {
-                        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "GOOS=windows go build -o sync_gateway_ce-windows -v github.com/couchbase/sync_gateway"
-                        }
-                    }
-                }
-                stage('Windows Service') {
-                    steps {
-                        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "GOOS=windows go build -o sync_gateway_ce-windows-service -v github.com/couchbase/sync_gateway/service/sg-windows/sg-service"
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('EE Build') {
-            parallel {
-                stage('Linux') {
+                stage('EE Linux') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
                             sh "GOOS=linux go build -o sync_gateway_ee-linux -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
                         }
                     }
                 }
-                stage('macOS') {
+                stage('CE macOS') {
+                    steps {
+                        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                            sh "GOOS=darwin go build -o sync_gateway_ce-darwin -v github.com/couchbase/sync_gateway"
+                        }
+                    }
+                }
+                stage('EE macOS') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
                             sh "GOOS=darwin go build -o sync_gateway_ee-darwin -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
                         }
                     }
                 }
-                stage('Windows') {
+                stage('CE Windows') {
+                    steps {
+                        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                            sh "GOOS=windows go build -o sync_gateway_ce-windows -v github.com/couchbase/sync_gateway"
+                        }
+                    }
+                }
+                stage('EE Windows') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
                             sh "GOOS=windows go build -o sync_gateway_ee-windows -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
@@ -231,12 +219,40 @@ pipeline {
                     }
                 }
 
-                stage('Integration') {
-                    when { branch 'master' }
+                stage('LiteCore Test') {
                     steps {
-                        echo 'Queueing Integration test for branch "master" ...'
-                        // Queues up an async integration test run for the master branch, but waits up to an hour for all merges into master before actually running (via quietPeriod)
-                        build job: 'sync-gateway-integration-master', quietPeriod: 3600, wait: false
+                        echo 'Example of where we could run lite-core unit tests against a running SG'
+                    }
+                }
+
+                stage('Integration') {
+                    stages {
+                        stage('Master Test') {
+                            when { branch 'master' }
+                            steps {
+                                echo 'Queueing Integration test for branch "master" ...'
+                                // Queues up an async integration test run for the master branch, but waits up to an hour for all merges into master before actually running (via quietPeriod)
+                                build job: 'sync-gateway-integration-master', quietPeriod: 3600, wait: false
+                            }
+                        }
+                        stage('Commit Test') {
+                            input {
+                                message "Should we kick off a blocking integration test for this commit?"
+                                ok "Yes, I'm happy to wait!"
+                                parameters {
+                                    boolean(name: 'RUN_INTEGRATION', defaultValue: false, description: 'Run integration test?')
+                                }
+                            }
+                            steps {
+                                echo "Example of where we could run a blocking integration test for this commit: ${RUN_INTEGRATION}"
+                                // gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running Integration Test', failureDescription: 'Integration Test Failed', gitHubContext: 'sgw-pipeline-integration', successDescription: 'Integration Test Passed') {
+                                //     echo "Waiting for integration test to finish..."
+                                //     // TODO: add commit parameter
+                                //     // Block the pipeline, but don't propagate a failure up to the top-level job - rely on gitStatusWrapper letting us know it failed
+                                //     build job: 'sync-gateway-integration-master', wait: true, propagate: false
+                                // }
+                            }
+                        }
                     }
                 }
             }
