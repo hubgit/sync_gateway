@@ -33,16 +33,6 @@ func canSeeAllChannels(princ Principal, channels base.Set) bool {
 	return true
 }
 
-func TestIntentionalFail(t *testing.T) {
-	if !base.IsEnterpriseEdition() {
-		t.Fatal("Oops!")
-	}
-}
-
-func TestIntentionalFail2(t *testing.T) {
-	t.Fatal("Oopsy!")
-}
-
 func TestValidateGuestUser(t *testing.T) {
 
 	gTestBucket := base.GetTestBucketOrPanic()
