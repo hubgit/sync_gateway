@@ -95,10 +95,9 @@ pipeline {
                     }
                 }
                 stage('CE macOS') {
+                    // TODO: Remove skip
+                    when { expression { return false } }
                     steps {
-                        // TODO: Remove skip
-                        when { expression { return false } }
-
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
                             echo 'TODO: figure out why build issues are caused by gosigar'
                             sh "GOOS=darwin go build -o sync_gateway_ce-darwin -v github.com/couchbase/sync_gateway"
@@ -106,10 +105,9 @@ pipeline {
                     }
                 }
                 stage('EE macOS') {
+                    // TODO: Remove skip
+                    when { expression { return false } }
                     steps {
-                        // TODO: Remove skip
-                        when { expression { return false } }
-
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
                             echo 'TODO: figure out why build issues are caused by gosigar'
                             sh "GOOS=darwin go build -o sync_gateway_ee-darwin -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
@@ -237,10 +235,9 @@ pipeline {
                 stage('LiteCore') {
                     stages {
                         stage('CE') {
+                            // TODO: Remove skip
+                            when { expression { return false } }
                             steps {
-                                // TODO: Remove skip
-                                when { expression { return false } }
-
                                 echo 'Example of where we could run lite-core unit tests against a running SG CE'
                                 gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running LiteCore Tests', failureDescription: 'CE with LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore-ce', successDescription: 'CE with LiteCore Test Passed') {
                                     echo "..."
@@ -248,10 +245,9 @@ pipeline {
                             }
                         }
                         stage('EE') {
+                            // TODO: Remove skip
+                            when { expression { return false } }
                             steps {
-                                // TODO: Remove skip
-                                when { expression { return false } }
-
                                 echo 'Example of where we could run lite-core unit tests against a running SG EE'
                                 gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running LiteCore Tests', failureDescription: 'EE with LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore-ee', successDescription: 'EE with LiteCore Test Passed') {
                                     echo "..."
@@ -272,10 +268,9 @@ pipeline {
                             }
                         }
                         stage('PR') {
+                            // TODO: Remove skip
+                            when { expression { return false } }
                             steps {
-                                // TODO: Remove skip
-                                when { expression { return false } }
-
                                 // TODO: Read labels on PR for 'integration-test'
                                 // if present, run stage as separate GH status
                                 echo 'Example of where we can run integration tests for this commit'
