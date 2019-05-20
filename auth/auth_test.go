@@ -44,6 +44,12 @@ func TestValidateGuestUser(t *testing.T) {
 	assert.True(t, err == nil)
 }
 
+func TestIntentionalFail(t *testing.T) {
+	if !base.IsEnterpriseEdition() {
+		t.Fatalf("failing intentionally for CE only")
+	}
+}
+
 func TestValidateUser(t *testing.T) {
 
 	gTestBucket := base.GetTestBucketOrPanic()
