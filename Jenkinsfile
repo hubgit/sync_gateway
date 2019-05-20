@@ -2,6 +2,9 @@ pipeline {
     // Build on this uberjenkins node, as it has the Go environment set up in a known-state
     // We could potentially change this to use a dockerfile agent instead so it can be portable.
     agent { label 'sync-gateway-pipeline-builder' }
+    parameters {
+        booleanParam(name: 'RUN_COMMIT_INTEGRATION', defaultValue: false, description: 'Run integration test for this commit?')
+    }
 
     environment {
         GO_VERSION = 'go1.11.5'
@@ -229,7 +232,7 @@ pipeline {
 
                 stage('Integration') {
                     stages {
-                        stage('Master Test') {
+                        stage('Master') {
                             when { branch 'master' }
                             steps {
                                 echo 'Queueing Integration test for branch "master" ...'
@@ -237,14 +240,14 @@ pipeline {
                                 build job: 'sync-gateway-integration-master', quietPeriod: 3600, wait: false
                             }
                         }
-                        stage('Commit Test') {
+                        stage('Commit') {
                             steps {
                                 script {
                                     def runIntegration
                                     try {
                                         runIntegration = input(
-                                            id: 'RUN_INTEGRATION', message: 'Should we kick off a blocking integration test for this commit?', parameters: [
-                                                [$class: 'BooleanParameterDefinition', defaultValue: false, description: '', name: 'Yes, I\'m happy to wait!']
+                                            id: 'RUN_COMMIT_INTEGRATION', message: 'Should we kick off a blocking integration test for this commit?', parameters: [
+                                                [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'This test run will take around 1 hour 30 minutes', name: 'Yes, I\'m happy to wait!']
                                             ])
                                     } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
                                         runIntegration = false
@@ -262,7 +265,7 @@ pipeline {
                                 //    message "Should we kick off a blocking integration test for this commit?"
                                 //    ok "Yes, I'm happy to wait!"
                                 //    parameters {
-                                //        boolean(name: 'RUN_INTEGRATION', defaultValue: false, description: 'Run integration test?')
+                                //        boolean(name: 'RUN_COMMIT_INTEGRATION', defaultValue: false, description: 'Run integration test for this commit?')
                                 //    }
                                 //}
                                 //steps {
