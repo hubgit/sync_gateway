@@ -139,21 +139,27 @@ pipeline {
                 stage('gofmt') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "test -z \"\$(gofmt -d -e ${GOPATH}/src/github.com/couchbase/sync_gateway)\""
+                            warnError(message: "gofmt failed") {
+                                sh "test -z \"\$(gofmt -d -e ${GOPATH}/src/github.com/couchbase/sync_gateway)\""
+                            }
                         }
                     }
                 }
                 stage('go vet') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "go vet github.com/couchbase/sync_gateway/..."
+                            warnError(message: "go vet failed") {
+                                sh "go vet github.com/couchbase/sync_gateway/..."
+                            }
                         }
                     }
                 }
                 stage('go fix') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            sh "test -z \"\$(go tool fix -diff ${GOPATH}/src/github.com/couchbase/sync_gateway)\""
+                            warnError(message: "go fix failed") {
+                                sh "test -z \"\$(go tool fix -diff ${GOPATH}/src/github.com/couchbase/sync_gateway)\""
+                            }
                         }
                     }
                 }
@@ -184,7 +190,7 @@ pipeline {
                                     sh 'gocov convert cover_ce.out | gocov-xml > reports/coverage-ce.xml'
 
                                     // Generate junit-formatted test report
-                                    warnError(message: "At least one test failed") {
+                                    warnError(message: "At least one CE unit test failed") {
                                         sh 'go2xunit -fail -suite-name-prefix="CE-" -input verbose_ce.out -output reports/test-ce.xml'
                                     }
 
@@ -213,7 +219,7 @@ pipeline {
                                     sh 'gocov convert cover_ee.out | gocov-xml > reports/coverage-ee.xml'
 
                                     // Generate junit-formatted test report
-                                    warnError(message: "At least one test failed") {
+                                    warnError(message: "At least one EE unit test failed") {
                                         sh 'go2xunit -fail -suite-name-prefix="EE-" -input verbose_ee.out -output reports/test-ee.xml'
                                     }
                                 }
