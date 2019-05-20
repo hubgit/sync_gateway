@@ -222,16 +222,13 @@ pipeline {
                 }
 
                 stage('LiteCore') {
-                    stages {
-                        stage('CE') {
-                            steps {
-                                echo 'Example of where we could run lite-core unit tests against a running SG'
-                            }
-                        }
-                        stage('EE') {
-                            steps {
-                                echo 'Example of where we could run lite-core unit tests against a running SG'
-                            }
+                    steps {
+                        echo 'Example of where we could run lite-core unit tests against a running SG'
+                        gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'LiteCore Testing', failureDescription: 'LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore', successDescription: 'LiteCore Test Passed') {
+                            echo "Waiting for integration test to finish..."
+                            // TODO: add commit parameter
+                            // Block the pipeline, but don't propagate a failure up to the top-level job - rely on gitStatusWrapper letting us know it failed
+                            // build job: 'sync-gateway-integration-master', wait: true, propagate: false
                         }
                     }
                 }
@@ -251,12 +248,12 @@ pipeline {
                                 // Read labels on PR for 'integration-test'
                                 // if present, run stage as separate GH status
                                 echo 'Example of where we can run integration tests for this commit'
-                                // gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running Integration Test', failureDescription: 'Integration Test Failed', gitHubContext: 'sgw-pipeline-integration', successDescription: 'Integration Test Passed') {
-                                //     echo "Waiting for integration test to finish..."
-                                //     // TODO: add commit parameter
-                                //     // Block the pipeline, but don't propagate a failure up to the top-level job - rely on gitStatusWrapper letting us know it failed
-                                //     build job: 'sync-gateway-integration-master', wait: true, propagate: false
-                                // }
+                                gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Integration Testing', failureDescription: 'Integration Test Failed', gitHubContext: 'sgw-pipeline-integration', successDescription: 'Integration Test Passed') {
+                                    echo "Waiting for integration test to finish..."
+                                    // TODO: add commit parameter
+                                    // Block the pipeline, but don't propagate a failure up to the top-level job - rely on gitStatusWrapper letting us know it failed
+                                    // build job: 'sync-gateway-integration-master', wait: true, propagate: false
+                                }
                             }
                         }
                     }
