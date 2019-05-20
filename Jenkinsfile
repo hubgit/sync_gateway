@@ -150,6 +150,13 @@ pipeline {
                         }
                     }
                 }
+                stage('go fix') {
+                    steps {
+                        withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                            sh "test -z \"\$(go tool fix -diff ${GOPATH}/src/github.com/couchbase/sync_gateway)\""
+                        }
+                    }
+                }
             }
         }
 
