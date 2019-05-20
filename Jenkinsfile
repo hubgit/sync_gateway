@@ -243,7 +243,7 @@ pipeline {
                                 try {
                                     runIntegration = input(
                                         id: 'RUN_INTEGRATION', message: 'Should we kick off a blocking integration test for this commit?', parameters: [
-                                            [$class: 'BooleanParameterDefinition', defaultValue: false, description: '', name: 'Yes, I'm happy to wait!']
+                                            [$class: 'BooleanParameterDefinition', defaultValue: false, description: '', name: 'Yes, I\'m happy to wait!']
                                         ])
                                 } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
                                     runIntegration = false
