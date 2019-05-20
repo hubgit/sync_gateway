@@ -223,17 +223,21 @@ pipeline {
                 }
 
                 stage('LiteCore') {
-                    steps {
+                    stages {
                         stage('CE') {
-                            echo 'Example of where we could run lite-core unit tests against a running SG CE'
-                            gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running LiteCore Tests', failureDescription: 'CE with LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore-ce', successDescription: 'CE with LiteCore Test Passed') {
-                                echo "TODO"
+                            steps {
+                                echo 'Example of where we could run lite-core unit tests against a running SG CE'
+                                gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running LiteCore Tests', failureDescription: 'CE with LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore-ce', successDescription: 'CE with LiteCore Test Passed') {
+                                    echo "TODO"
+                                }
                             }
                         }
                         stage('EE') {
-                            echo 'Example of where we could run lite-core unit tests against a running SG EE'
-                            gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running LiteCore Tests', failureDescription: 'EE with LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore-ee', successDescription: 'EE with LiteCore Test Passed') {
-                                echo "TODO"
+                            steps {
+                                echo 'Example of where we could run lite-core unit tests against a running SG EE'
+                                gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running LiteCore Tests', failureDescription: 'EE with LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore-ee', successDescription: 'EE with LiteCore Test Passed') {
+                                    echo "TODO"
+                                }
                             }
                         }
                     }
