@@ -234,7 +234,7 @@ pipeline {
 
                 stage('LiteCore') {
                     stages {
-                        stage('CE') {
+                        stage('against CE') {
                             // TODO: Remove skip
                             when { expression { return false } }
                             steps {
@@ -244,7 +244,7 @@ pipeline {
                                 }
                             }
                         }
-                        stage('EE') {
+                        stage('against EE') {
                             // TODO: Remove skip
                             when { expression { return false } }
                             steps {
