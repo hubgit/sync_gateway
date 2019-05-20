@@ -139,8 +139,9 @@ pipeline {
                 stage('gofmt') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                        gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running gofmt', failureDescription: 'gofmt Failed', gitHubContext: 'sgw-pipeline-gofmt', successDescription: 'gofmt Passed') {
-                            sh "test -z \"\$(gofmt -d -e ${GOPATH}/src/github.com/couchbase/sync_gateway)\""
+                            gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running gofmt', failureDescription: 'gofmt Failed', gitHubContext: 'sgw-pipeline-gofmt', successDescription: 'gofmt Passed') {
+                                sh "test -z \"\$(gofmt -d -e ${GOPATH}/src/github.com/couchbase/sync_gateway)\""
+                            }
                         }
                     }
                 }
