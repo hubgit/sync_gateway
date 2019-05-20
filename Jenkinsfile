@@ -2,9 +2,6 @@ pipeline {
     // Build on this uberjenkins node, as it has the Go environment set up in a known-state
     // We could potentially change this to use a dockerfile agent instead so it can be portable.
     agent { label 'sync-gateway-pipeline-builder' }
-    parameters {
-        booleanParam(name: 'RUN_COMMIT_INTEGRATION', defaultValue: false, description: 'Run integration test for this commit?')
-    }
 
     environment {
         GO_VERSION = 'go1.11.5'
@@ -152,7 +149,7 @@ pipeline {
 
         stage('Tests') {
             parallel {
-                stage(' ') {
+                stage('Unit') {
                     stages {
                         stage('CE') {
                             steps{
@@ -224,9 +221,18 @@ pipeline {
                     }
                 }
 
-                stage('LiteCore Test') {
-                    steps {
-                        echo 'Example of where we could run lite-core unit tests against a running SG'
+                stage('LiteCore') {
+                    stages {
+                        stage('CE') {
+                            steps {
+                                echo 'Example of where we could run lite-core unit tests against a running SG'
+                            }
+                        }
+                        stage('EE') {
+                            steps {
+                                echo 'Example of where we could run lite-core unit tests against a running SG'
+                            }
+                        }
                     }
                 }
 
@@ -240,43 +246,17 @@ pipeline {
                                 build job: 'sync-gateway-integration-master', quietPeriod: 3600, wait: false
                             }
                         }
-                        stage('Commit') {
+                        stage('PR') {
                             steps {
-                                script {
-                                    def runIntegration
-                                    try {
-                                        runIntegration = input(
-                                            id: 'RUN_COMMIT_INTEGRATION', message: 'Should we kick off a blocking integration test for this commit?', parameters: [
-                                                [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'This test run will take around 1 hour 30 minutes', name: 'Yes, I\'m happy to wait!']
-                                            ])
-                                    } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
-                                        runIntegration = false
-                                    }
-
-                                    node {
-                                        if (runIntegration) {
-                                            echo "choice was yes"
-                                        } else {
-                                            echo "choice was no"
-                                        }
-                                    }
-                                }
-                                //input {
-                                //    message "Should we kick off a blocking integration test for this commit?"
-                                //    ok "Yes, I'm happy to wait!"
-                                //    parameters {
-                                //        boolean(name: 'RUN_COMMIT_INTEGRATION', defaultValue: false, description: 'Run integration test for this commit?')
-                                //    }
-                                //}
-                                //steps {
-                                //    echo "Example of where we could run a blocking integration test for this commit: ${RUN_INTEGRATION}"
-                                    // gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running Integration Test', failureDescription: 'Integration Test Failed', gitHubContext: 'sgw-pipeline-integration', successDescription: 'Integration Test Passed') {
-                                    //     echo "Waiting for integration test to finish..."
-                                    //     // TODO: add commit parameter
-                                    //     // Block the pipeline, but don't propagate a failure up to the top-level job - rely on gitStatusWrapper letting us know it failed
-                                    //     build job: 'sync-gateway-integration-master', wait: true, propagate: false
-                                    // }
-                                //}
+                                // Read labels on PR for 'integration-test'
+                                // if present, run stage as separate GH status
+                                echo 'Example of where we can run integration tests for this commit'
+                                // gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running Integration Test', failureDescription: 'Integration Test Failed', gitHubContext: 'sgw-pipeline-integration', successDescription: 'Integration Test Passed') {
+                                //     echo "Waiting for integration test to finish..."
+                                //     // TODO: add commit parameter
+                                //     // Block the pipeline, but don't propagate a failure up to the top-level job - rely on gitStatusWrapper letting us know it failed
+                                //     build job: 'sync-gateway-integration-master', wait: true, propagate: false
+                                // }
                             }
                         }
                     }
