@@ -238,22 +238,41 @@ pipeline {
                             }
                         }
                         stage('Commit Test') {
-                            input {
-                                message "Should we kick off a blocking integration test for this commit?"
-                                ok "Yes, I'm happy to wait!"
-                                parameters {
-                                    boolean(name: 'RUN_INTEGRATION', defaultValue: false, description: 'Run integration test?')
+                            script {
+                                def runIntegration
+                                try {
+                                    runIntegration = input(
+                                        id: 'RUN_INTEGRATION', message: 'Should we kick off a blocking integration test for this commit?', parameters: [
+                                            [$class: 'BooleanParameterDefinition', defaultValue: false, description: '', name: 'Yes, I'm happy to wait!']
+                                        ])
+                                } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+                                    runIntegration = false
+                                }
+
+                                node {
+                                    if (runIntegration) {
+                                        echo "choice was yes"
+                                    } else {
+                                        echo "choice was no"
+                                    }
                                 }
                             }
-                            steps {
-                                echo "Example of where we could run a blocking integration test for this commit: ${RUN_INTEGRATION}"
+                            //input {
+                            //    message "Should we kick off a blocking integration test for this commit?"
+                            //    ok "Yes, I'm happy to wait!"
+                            //    parameters {
+                            //        boolean(name: 'RUN_INTEGRATION', defaultValue: false, description: 'Run integration test?')
+                            //    }
+                            //}
+                            //steps {
+                            //    echo "Example of where we could run a blocking integration test for this commit: ${RUN_INTEGRATION}"
                                 // gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running Integration Test', failureDescription: 'Integration Test Failed', gitHubContext: 'sgw-pipeline-integration', successDescription: 'Integration Test Passed') {
                                 //     echo "Waiting for integration test to finish..."
                                 //     // TODO: add commit parameter
                                 //     // Block the pipeline, but don't propagate a failure up to the top-level job - rely on gitStatusWrapper letting us know it failed
                                 //     build job: 'sync-gateway-integration-master', wait: true, propagate: false
                                 // }
-                            }
+                            //}
                         }
                     }
                 }
