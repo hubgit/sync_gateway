@@ -41,13 +41,12 @@ pipeline {
                         sh 'cp .scm-checkout/bootstrap.sh .'
                         sh 'chmod +x bootstrap.sh'
                         sh "./bootstrap.sh -p sg-accel -c ${SG_COMMIT}"
-
                     }
                 }
 
-                stage(' ') {
+                stage('Go') {
                     stages {
-                        stage('Go') {
+                        stage('Install') {
                             steps {
                                 echo 'Installing Go via gvm..'
                                 // We'll use Go 1.10.4 to bootstrap compilation of newer Go versions
@@ -58,7 +57,7 @@ pipeline {
                                 }
                             }
                         }
-                        stage('Tools') {
+                        stage('Get Tools') {
                             steps {
                                 withEnv(["PATH+=${GO}", "GOPATH=${GOPATH}"]) {
                                     sh "go version"
@@ -140,6 +139,7 @@ pipeline {
                 stage('gofmt') {
                     steps {
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
+                        gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running gofmt', failureDescription: 'gofmt Failed', gitHubContext: 'sgw-pipeline-gofmt', successDescription: 'gofmt Passed') {
                             sh "test -z \"\$(gofmt -d -e ${GOPATH}/src/github.com/couchbase/sync_gateway)\""
                         }
                     }
@@ -223,12 +223,17 @@ pipeline {
 
                 stage('LiteCore') {
                     steps {
-                        echo 'Example of where we could run lite-core unit tests against a running SG'
-                        gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'LiteCore Testing', failureDescription: 'LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore', successDescription: 'LiteCore Test Passed') {
-                            echo "Waiting for integration test to finish..."
-                            // TODO: add commit parameter
-                            // Block the pipeline, but don't propagate a failure up to the top-level job - rely on gitStatusWrapper letting us know it failed
-                            // build job: 'sync-gateway-integration-master', wait: true, propagate: false
+                        stage('CE') {
+                            echo 'Example of where we could run lite-core unit tests against a running SG CE'
+                            gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running LiteCore Tests', failureDescription: 'CE with LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore-ce', successDescription: 'CE with LiteCore Test Passed') {
+                                echo "TODO"
+                            }
+                        }
+                        stage('EE') {
+                            echo 'Example of where we could run lite-core unit tests against a running SG EE'
+                            gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running LiteCore Tests', failureDescription: 'EE with LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore-ee', successDescription: 'EE with LiteCore Test Passed') {
+                                echo "TODO"
+                            }
                         }
                     }
                 }
@@ -248,7 +253,7 @@ pipeline {
                                 // Read labels on PR for 'integration-test'
                                 // if present, run stage as separate GH status
                                 echo 'Example of where we can run integration tests for this commit'
-                                gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Integration Testing', failureDescription: 'Integration Test Failed', gitHubContext: 'sgw-pipeline-integration', successDescription: 'Integration Test Passed') {
+                                gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running EE Integration Test', failureDescription: 'EE Integration Test Failed', gitHubContext: 'sgw-pipeline-integration-ee', successDescription: 'EE Integration Test Passed') {
                                     echo "Waiting for integration test to finish..."
                                     // TODO: add commit parameter
                                     // Block the pipeline, but don't propagate a failure up to the top-level job - rely on gitStatusWrapper letting us know it failed
