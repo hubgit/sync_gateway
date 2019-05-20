@@ -96,17 +96,23 @@ pipeline {
                 }
                 stage('CE macOS') {
                     steps {
+                        // TODO: Remove skip
+                        when { expression { return false } }
+
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            echo 'TODO: Uncomment and figure out why build issues are caused by gosigar'
-                            //sh "GOOS=darwin go build -o sync_gateway_ce-darwin -v github.com/couchbase/sync_gateway"
+                            echo 'TODO: figure out why build issues are caused by gosigar'
+                            sh "GOOS=darwin go build -o sync_gateway_ce-darwin -v github.com/couchbase/sync_gateway"
                         }
                     }
                 }
                 stage('EE macOS') {
                     steps {
+                        // TODO: Remove skip
+                        when { expression { return false } }
+
                         withEnv(["PATH+=${GO}:${GOPATH}/bin"]) {
-                            echo 'TODO: Uncomment and figure out why build issues are caused by gosigar'
-                            //sh "GOOS=darwin go build -o sync_gateway_ee-darwin -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
+                            echo 'TODO: figure out why build issues are caused by gosigar'
+                            sh "GOOS=darwin go build -o sync_gateway_ee-darwin -tags ${EE_BUILD_TAG} -v github.com/couchbase/sync_gateway"
                         }
                     }
                 }
@@ -232,17 +238,23 @@ pipeline {
                     stages {
                         stage('CE') {
                             steps {
+                                // TODO: Remove skip
+                                when { expression { return false } }
+
                                 echo 'Example of where we could run lite-core unit tests against a running SG CE'
                                 gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running LiteCore Tests', failureDescription: 'CE with LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore-ce', successDescription: 'CE with LiteCore Test Passed') {
-                                    echo "TODO"
+                                    echo "..."
                                 }
                             }
                         }
                         stage('EE') {
                             steps {
+                                // TODO: Remove skip
+                                when { expression { return false } }
+
                                 echo 'Example of where we could run lite-core unit tests against a running SG EE'
                                 gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running LiteCore Tests', failureDescription: 'EE with LiteCore Test Failed', gitHubContext: 'sgw-pipeline-litecore-ee', successDescription: 'EE with LiteCore Test Passed') {
-                                    echo "TODO"
+                                    echo "..."
                                 }
                             }
                         }
@@ -261,14 +273,17 @@ pipeline {
                         }
                         stage('PR') {
                             steps {
-                                // Read labels on PR for 'integration-test'
+                                // TODO: Remove skip
+                                when { expression { return false } }
+
+                                // TODO: Read labels on PR for 'integration-test'
                                 // if present, run stage as separate GH status
                                 echo 'Example of where we can run integration tests for this commit'
                                 gitStatusWrapper(credentialsId: 'bbrks_uberjenkins_sg_access_token', description: 'Running EE Integration Test', failureDescription: 'EE Integration Test Failed', gitHubContext: 'sgw-pipeline-integration-ee', successDescription: 'EE Integration Test Passed') {
                                     echo "Waiting for integration test to finish..."
                                     // TODO: add commit parameter
                                     // Block the pipeline, but don't propagate a failure up to the top-level job - rely on gitStatusWrapper letting us know it failed
-                                    // build job: 'sync-gateway-integration-master', wait: true, propagate: false
+                                    build job: 'sync-gateway-integration-master', wait: true, propagate: false
                                 }
                             }
                         }
