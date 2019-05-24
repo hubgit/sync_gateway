@@ -80,7 +80,7 @@ fi
 
 # create user if it does not exist
 if [ -z `id -u @@PRODUCT_EXEC@@ 2>/dev/null` ]; then
-  useradd -m @@PRODUCT_EXEC@@
+  useradd @@PRODUCT_EXEC@@
 fi
 
 # create home dir if it does not exist (maybe it has been deleted upon uninstall)
