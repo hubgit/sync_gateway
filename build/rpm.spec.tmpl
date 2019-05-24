@@ -61,7 +61,7 @@ getent group @@PRODUCT_BASE@@ >/dev/null || \
    groupadd -r @@PRODUCT_BASE@@ || exit 1
 getent passwd @@PRODUCT_BASE@@ >/dev/null || \
    useradd -r -g @@PRODUCT_BASE@@ -d $RPM_INSTALL_PREFIX0 -s /bin/sh \
-           -c "@@PRODUCT_BASE@@ system user" --create-home @@PRODUCT_BASE@@ || exit 1
+           -c "@@PRODUCT_BASE@@ system user" @@PRODUCT_BASE@@ || exit 1
 
 if [ -d @@PREFIX@@ ]
 then
